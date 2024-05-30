@@ -12,22 +12,31 @@ class NewsFeed:
         self.language = language
 
     def get(self):
-        url = f'https://newsapi.org/v2/everything?'\
-              f'qInTitle={self.interest}&'\
-              f'from={self.from_date}&'\
-              f'to={self.to_date}&'\
-              f'language={self.language}&'\
-              f'{self.API_KEY}'
+        url = self._build_url()
 
-        response = requests.get(url)
-        content = response.json()
-        articles: list[dict] = content['articles']
+        articles = self._get_articles(url)
 
         email_body = ''
         for article in articles[:5]:
             email_body = email_body + article['title'] + '\n' + article['url'] + '\n\n'
 
         return email_body
+
+    def _get_articles(self, url):
+        response = requests.get(url)
+        content = response.json()
+        articles: list[dict] = content['articles']
+        return articles
+
+    def _build_url(self):
+        url = f'{self.base_url}' \
+              f'qInTitle={self.interest}&' \
+              f'from={self.from_date}&' \
+              f'to={self.to_date}&' \
+              f'language={self.language}&' \
+              f'apiKey={self.API_KEY}'
+        return url
+
 
 if __name__ == '__main__':
     news_feed = NewsFeed(interest='nasa', from_date='2024-05-20', to_date='2024-05-27', language='en')
